@@ -1,4 +1,8 @@
 {
 	"cmdprefix": "/",
-	"cmdnotifybad": true
+	"cmdnotifybad": true,
+	"serverpath": "C:/Users/new owner/AppData/Roaming/SCP Secret Laboratory/ServerLogs/",
+	"ports": [
+		7777
+	]
 }
