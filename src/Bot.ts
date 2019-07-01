@@ -2,6 +2,8 @@ import * as Discord from 'discord.js';
 import Settings from './Settings';
 import CommandHandle from './CommandHandle';
 import Messages from './Messages';
+import SCPWatch from './SCPWatch';
+import SCPLog from './SCPLog';
 
 /**
  * Main discord bot class
@@ -16,6 +18,10 @@ export default class Bot
 	private client: Discord.Client;
 	/// Command handler.
 	private cmdh: CommandHandle;
+	/// SCP watcher.
+	private scpw: SCPWatch;
+	/// SCP logger.
+	private scpl: SCPLog;
 	
 	/**
 	 * @brief Init the bot
@@ -29,6 +35,8 @@ export default class Bot
 		this.settings = settings;
 		Messages.InitSettings(this.settings);
 		this.cmdh = new CommandHandle(settings);
+		this.scpw = new SCPWatch(this.settings, this.settings.ports[0]);
+		this.scpl = new SCPLog(this.settings);
 		
 		// Init the client.
 		this.client = new Discord.Client();
@@ -52,6 +60,8 @@ export default class Bot
 			})
 			.catch(console.error);
 		});
+		
+		this.scpw.onChange((type: string, filename: string) => { this.scpl.onLogFileChange(filename); });
 		
 		// Log the bot in.
 		this.client.login(this.token)
