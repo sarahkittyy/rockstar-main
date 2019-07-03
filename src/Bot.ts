@@ -35,8 +35,6 @@ export default class Bot
 		this.settings = settings;
 		Messages.InitSettings(this.settings);
 		this.cmdh = new CommandHandle(settings);
-		this.scpw = new SCPWatch(this.settings, this.settings.ports[0]);
-		this.scpl = new SCPLog(this.settings);
 		
 		// Init the client.
 		this.client = new Discord.Client();
@@ -60,14 +58,32 @@ export default class Bot
 			})
 			.catch(console.error);
 		});
-		
-		this.scpw.onChange((type: string, filename: string) => { this.scpl.onLogFileChange(filename); });
-		
 		// Log the bot in.
 		this.client.login(this.token)
 		.then((value: string) => {
 			console.log('Logged in successfully...');
 		})
 		.catch(console.error);
+		
+		// Init the SCP Logger.
+		this.client.on('ready', () => {
+			let guild: Discord.Guild | undefined =
+			this.client.guilds.find((g: Discord.Guild) => g.id === this.settings.guildid);
+			if(!guild)
+			{
+				throw new Error('Could not find guild with ID ' + this.settings.guildid);
+			}
+			let channel: Discord.GuildChannel | undefined =
+				guild.channels.find((c: Discord.GuildChannel) => (c.name == this.settings.logchannel) && (c.type === 'text'));
+			if(!channel)
+			{
+				throw new Error('Could not find channel with name ' + this.settings.logchannel + '!');
+			}
+			this.scpl = new SCPLog(this.settings, <Discord.TextChannel>channel);
+			
+			// Init the SCP file log watcher.
+			this.scpw = new SCPWatch(this.settings, this.settings.ports[0]);
+			this.scpw.onChange((type: string, filename: string) => { this.scpl.onLogFileChange(filename); });
+		});
 	}
 };

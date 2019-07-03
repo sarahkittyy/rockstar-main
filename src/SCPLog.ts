@@ -1,5 +1,7 @@
 import * as Discord from 'discord.js';
 import Settings from './Settings';
+import Messages from './Messages';
+import * as fs from 'fs';
 
 /**
  * @brief Logs SCP round log file changes.
@@ -36,6 +38,9 @@ export default class SCPLog
 	 */
 	public onLogFileChange(filename: string)
 	{
+		// Read the file contents.
+		let contents: string = fs.readFileSync(filename).toString();
+		
 		
 	}
 };

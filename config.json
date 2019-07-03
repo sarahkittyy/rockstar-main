@@ -4,5 +4,7 @@
 	"serverpath": "C:/Users/new owner/AppData/Roaming/SCP Secret Laboratory/ServerLogs/",
 	"ports": [
 		7777
-	]
+	],
+	"guildid": "594630477240074265",
+	"logchannel": "log"
 }
