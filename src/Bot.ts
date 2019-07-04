@@ -4,6 +4,7 @@ import CommandHandle from './CommandHandle';
 import Messages from './Messages';
 import SCPWatch from './SCPWatch';
 import SCPLog from './SCPLog';
+import RoleReact from './RoleReact';
 
 /**
  * Main discord bot class
@@ -31,6 +32,7 @@ export default class Bot
 	 */
 	public constructor(token: string, settings: Settings)
 	{
+		RoleReact.init();
 		this.token = token;
 		this.settings = settings;
 		Messages.InitSettings(this.settings);
@@ -46,8 +48,29 @@ export default class Bot
 			}
 
 			// Pass the message to the command handler.
-			this.cmdh.handleMessage(message);
+			this.cmdh.handleMessage(this.client, message);
 		});
+		
+		// Pass message reaction updates to RoleReact.
+		this.client.on('messageReactionAdd', (reaction: Discord.MessageReaction, user: Discord.User) => {
+			// Ignore if it's the client's reaction.
+			if (user.id === this.client.user.id)
+			{
+				return;
+			}
+			
+			RoleReact.onMessageReactionAdd(reaction, user);
+		});
+		this.client.on('messageReactionRemove', (reaction: Discord.MessageReaction, user: Discord.User) => {
+			// Ignore if it's the client's reaction.
+			if (user.id === this.client.user.id)
+			{
+				return;
+			}
+			
+			RoleReact.onMessageReactionRemove(reaction, user);
+		});
+		
 		// On disconnect.
 		this.client.on('disconnect', (event: any) => {
 			console.log('Bot disconnected, trying to reconnect...');

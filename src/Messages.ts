@@ -121,4 +121,63 @@ export default class Messages
 					.setTitle('Invalid command ' + command + '.')
 					.setFooter(`See ${this.settings.cmdprefix}help for help.`);
 	}
+	
+	/**
+	 * @brief Invalid command arguments
+	 * 
+	 * @param command The incorrectly used command.
+	 */
+	public static InvalidCommandArgs(command: string): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle('Invalid command arguments for command ' + command + '.')
+					.setDescription(`See ${this.settings.cmdprefix}help ${command} for more help.`);
+	}
+	
+	/**
+	 * @brief Invalid channel type.
+	 */
+	public static InvalidChannelType(): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle('This is not a valid channel? Please use this command in a guild.')
+					.setTimestamp(new Date());
+	}
+	
+	/**
+	 * @brief Invalid role.
+	 * 
+	 * @param role The role that was attempted to be used.
+	 */
+	public static InvalidRole(role: string): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle(`Invalid role "${role}".`)
+					.setTimestamp(new Date())
+					.setDescription('Please check that the name of the role is correct.');
+	}
+	
+	/**
+	 * @brief Invalid emoji
+	 * 
+	 * @param name The name of the emoji.
+	 */
+	public static InvalidEmoji(name: string): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle(`Could not find/access emoji ${name}.`)
+					.setTimestamp(new Date());
+	}
+	
+	/**
+	 * @brief For RoleReact messages.
+	 * 
+	 * @param message The custom message to attach.
+	 */
+	public static RoleReactMessage(message: string): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle(`${message}`)
+					.setTimestamp(new Date());
+	}
 }

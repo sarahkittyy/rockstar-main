@@ -21,9 +21,10 @@ export default class CommandHandle
 	/**
 	 * @brief Handle a message
 	 * 
+	 * @param client The discord client.
 	 * @param message The message to handle
 	 */
-	public handleMessage(message: Discord.Message)
+	public handleMessage(client: Discord.Client, message: Discord.Message)
 	{
 		let prefix: string = this.settings.cmdprefix;
 		// Starts with prefix, and a word character immediately after.
@@ -66,7 +67,7 @@ export default class CommandHandle
 				};
 				
 				// Run the command.
-				this.runCommand(cmd[0], args);
+				this.runCommand(client, cmd[0], args);
 			}
 		}
 	}
@@ -74,23 +75,24 @@ export default class CommandHandle
 	/**
 	 * @brief Tries to run a command
 	 * 
+	 * @param client The discord client.
 	 * @param command The command to run
 	 * @param message The discord message
 	 * 
 	 * @returns true if successful, false otherwise.
 	 */
-	private runCommand(command: string, args: CallbackArgs): boolean
+	private runCommand(client: Discord.Client, command: string, args: CallbackArgs): boolean
 	{
 		// If the command exists...
 		let found: Command | undefined = this.getCommand(command);
 		if(found)
 		{
 			// Call it
-			found.callback(args);
+			found.callback(client, args);
 		}
 		else
 		{
-			// Check if we should reply that the message wasn't found.
+			// Check if we should reply that the comand wasn't found.
 			if(this.settings.cmdnotifybad)
 			{
 				// Reply
