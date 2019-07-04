@@ -93,7 +93,7 @@ export default class CommandHandle
 			// Check that we have the permissions to run this command.
 			this.hasPermissions(args.msg, found.permission).catch(console.error)
 			.then((value: boolean) => {
-				if(value)
+				if(value || (found.users.find((v: string) => v === args.msg.author.id)))
 				{
 					found.callback(client, args);
 				}
@@ -136,9 +136,16 @@ export default class CommandHandle
 	 */
 	private async hasPermissions(message: Discord.Message, permission: number): Promise<boolean>
 	{
-		return await message.guild.fetchMember(message).catch(console.error)
+		if(permission === -1)
+		{
+			return false;
+		}
+		else
+		{
+			return await message.guild.fetchMember(message).catch(console.error)
 					.then((member: Discord.GuildMember) => {
 						return member.hasPermission(permission);
-					});
+					});	
+		}
 	}
 };

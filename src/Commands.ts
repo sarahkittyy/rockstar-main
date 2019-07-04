@@ -7,6 +7,7 @@ export interface Command
 {
 	name: string;
 	permission: number;
+	users?: string[];
 	desc?: string;
 	args?: CommandArg[];
 	callback: (client: Discord.Client, args: CallbackArgs) => void;
@@ -38,7 +39,7 @@ export interface CallbackArgs
 export default <Command[]>[
 	{
 		name: 'report',
-		permission: 8,
+		permission: 0,
 		args: [
 			{
 				name: 'message',
@@ -55,7 +56,10 @@ export default <Command[]>[
 	},
 	{
 		name: 'role-react',
-		permission: 8,
+		permission: -1,
+		users: [
+			"295233589916991489"	
+		],
 		args: [
 			{
 				name: 'rolename',
