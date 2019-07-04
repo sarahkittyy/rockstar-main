@@ -196,4 +196,34 @@ export default class Messages
 					.setTitle(`${message}`)
 					.setTimestamp(new Date());
 	}
+	
+	/**
+	 * @brief Successful report.
+	 */
+	public static SuccessfulReport(): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle('Thank you for your report!')
+					.setTimestamp(new Date());
+	}
+	
+	/**
+	 * @brief Staff role couldn't be found.
+	 */
+	public static InvalidStaffRole(): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle('Could not find suitable staff role. Please contact the bot\'s manager.')
+					.setTimestamp(new Date());
+	}
+	
+	/**
+	 * @brief Staff role isn't mentionable.
+	 */
+	public static StaffNotMentionable(): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle('Could not mention staff. This is an issue, contact the bot manager.')
+					.setTimestamp(new Date());
+	}
 }

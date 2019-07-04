@@ -6,4 +6,5 @@ export default interface Settings
 	ports: Array<number>; // All the SCP Server ports to log events from.
 	guildid: string; // The main guild this bot will be run in, where logs will be placed.
 	logchannel: string; // The name of the text channel in the guild where logs will be sent.
+	reportrole: string; // The name of the role to @ in reports.
 };

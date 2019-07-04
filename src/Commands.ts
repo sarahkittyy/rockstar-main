@@ -2,6 +2,7 @@ import * as Discord from 'discord.js';
 import Messages from './Messages';
 import RoleReact from './RoleReact';
 import * as Emoji from 'node-emoji';
+import Settings from './Settings';
 
 export interface Command
 {
@@ -34,6 +35,7 @@ export interface CallbackArgs
 	msg: Discord.Message;
 	argv: string[];
 	argc: number;
+	settings: Settings;
 };
 
 export default <Command[]>[
@@ -42,16 +44,57 @@ export default <Command[]>[
 		permission: 0,
 		args: [
 			{
+				name: 'user',
+				required: true,
+				desc: 'The user to report',
+				type: 'string (@their_username)'
+			},
+			{
 				name: 'message',
-				default: 'test',
 				required: false,
-				desc: 'The message to report',
+				default: 'No message.',
+				desc: 'The message to send staff with your report.',
 				type: 'string'
-			}	
+			}
 		],
-		desc: 'report a message',
+		desc: 'Report a user to staff.',
 		callback: (client: Discord.Client, args: CallbackArgs) => {
-			args.msg.channel.send('report test');
+			if(args.argc < 1)
+			{
+				args.msg.channel.send(Messages.InvalidCommandArgs('report'));
+				return;
+			}
+			// Get the arguments.
+			let userhandle: string = args.argv[0];
+			let message: string = args.argv.slice(2).join(' ') || 'No message given';
+			
+			// Get the user mentioned.
+			let userID: string = /<@(\d+)>/.exec(userhandle)[1];
+			// Get the user.
+			let user: Discord.GuildMember = args.msg.guild.members.get(userID);
+			
+			// Get the staff role.
+			let staff: Discord.Role | undefined =
+				user.guild.roles.find((r: Discord.Role) => r.name === args.settings.reportrole);
+			if(!staff)
+			{
+				args.msg.channel.send(Messages.InvalidStaffRole());
+				return;
+			}
+			if(!staff.mentionable)
+			{
+				args.msg.channel.send(Messages.StaffNotMentionable());
+				return;
+			}
+			
+			// Delete the report message.
+			if(args.msg.deletable)
+			{
+				args.msg.delete().catch(console.error);
+			}
+			
+			// Respond that the report was successful.
+			args.msg.channel.send(`<@&${staff.id}>`, Messages.SuccessfulReport());
 		}
 	},
 	{

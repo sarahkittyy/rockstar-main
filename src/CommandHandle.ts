@@ -66,7 +66,8 @@ export default class CommandHandle
 				let args: CallbackArgs = {
 					msg: message,
 					argc: cmd.length - 1,
-					argv: cmd.slice(1)
+					argv: cmd.slice(1),
+					settings: this.settings
 				};
 				
 				// Run the command.
