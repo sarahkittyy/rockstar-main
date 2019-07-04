@@ -18,7 +18,7 @@ export default class Messages
 	/**
 	 * @brief Generic help command
 	 */
-	public static Help(): Discord.RichEmbed
+	public static Help(showAdmin: boolean = false): Discord.RichEmbed
 	{
 		let embed = new Discord.RichEmbed()
 					.setTitle('Available Commands: ')
@@ -28,6 +28,11 @@ export default class Messages
 		// Iterate over all commands.
 		for(let command of Commands)
 		{
+			// If the permissions integer isn't 0, ignore.
+			if(command.permission !== 0 && !showAdmin)
+			{
+				continue;
+			}
 			// Build the string of args if the command has any.
 			let args: string | undefined = undefined;
 			if(command.args)
@@ -55,7 +60,7 @@ export default class Messages
 	public static HelpCommand(command: Command): Discord.RichEmbed
 	{
 		let embed = new Discord.RichEmbed()
-					.setTitle(`${this.settings.cmdprefix}${command.name}`)
+					.setTitle(`${this.settings.cmdprefix}${command.name}${command.permission !== 0 ? ' [ADMIN ONLY]' : ''}`)
 					.setColor(8453219)
 					.setTimestamp(new Date())
 					.setFooter('See ' + this.settings.cmdprefix + 'help for general help.');
@@ -167,6 +172,17 @@ export default class Messages
 		return new Discord.RichEmbed()
 					.setTitle(`Could not find/access emoji ${name}.`)
 					.setTimestamp(new Date());
+	}
+	
+	/**
+	 * @brief User has invalid permissions.
+	 */
+	public static NoPermissions(): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle('You do not have permission to run that command.')
+					.setTimestamp(new Date())
+					.setFooter(`See ${this.settings.cmdprefix}help for help.`);
 	}
 	
 	/**

@@ -54,7 +54,10 @@ export default class CommandHandle
 				// Otherwise, use the generic help.
 				else
 				{
-					message.channel.send(Messages.Help());
+					// If we have admin perms, use the admin help.
+					this.hasPermissions(message, 0x8).then((value: boolean) => {
+						message.channel.send(Messages.Help(value));
+					});
 				}
 			}
 			else
@@ -77,7 +80,7 @@ export default class CommandHandle
 	 * 
 	 * @param client The discord client.
 	 * @param command The command to run
-	 * @param message The discord message
+	 * @param args The command extra arguments.
 	 * 
 	 * @returns true if successful, false otherwise.
 	 */
@@ -87,8 +90,18 @@ export default class CommandHandle
 		let found: Command | undefined = this.getCommand(command);
 		if(found)
 		{
-			// Call it
-			found.callback(client, args);
+			// Check that we have the permissions to run this command.
+			this.hasPermissions(args.msg, found.permission).catch(console.error)
+			.then((value: boolean) => {
+				if(value)
+				{
+					found.callback(client, args);
+				}
+				else
+				{
+					args.msg.channel.send(Messages.NoPermissions());
+				}		
+			});
 		}
 		else
 		{
@@ -113,5 +126,19 @@ export default class CommandHandle
 	{
 		let found = Commands.find((value: Command) => value.name === command);
 		return found;
+	}
+	
+	/**
+	 * @brief Checks if the author of a message has sufficient permissions.
+	 * 
+	 * @param message The message sent.
+	 * @param permission The permissions integer to check against.
+	 */
+	private async hasPermissions(message: Discord.Message, permission: number): Promise<boolean>
+	{
+		return await message.guild.fetchMember(message).catch(console.error)
+					.then((member: Discord.GuildMember) => {
+						return member.hasPermission(permission);
+					});
 	}
 };
