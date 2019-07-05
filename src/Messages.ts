@@ -1,6 +1,7 @@
 import * as Discord from 'discord.js';
 import Commands, { Command, CallbackArgs, stringifyCommandArg } from './Commands';
 import Settings from './Settings';
+import { Report } from './ReportHandler';
 
 export default class Messages
 {
@@ -204,6 +205,63 @@ export default class Messages
 	{
 		return new Discord.RichEmbed()
 					.setTitle('Thank you for your report!')
+					.setTimestamp(new Date());
+	}
+	
+	/**
+	 * @brief Archived report.
+	 * 
+	 * @param user The user who sent the report.
+	 */
+	public static ArchivedReport(user: Discord.User): string
+	{
+		return `Sorry, <@${user.id}>, there are no staff online at the moment. Your report was sent to staff.`;
+	}
+	
+	/**
+	 * @brief User never submitted a report.
+	 * 
+	 * @param member The member with no reports.
+	 */
+	public static NoOutstandingReports(member: Discord.GuildMember): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle(`User ${member.user.username}#${member.user.discriminator} has no outstanding reports.`)
+					.setTimestamp(new Date());
+	}
+	
+	/**
+	 * @brief Invalid report archive channel.
+	 */
+	public static InvalidReportChannel(): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle('The server has not configured a proper report / report handling channel.')
+					.setDescription('Please contact this bot\'s manager.')
+					.setTimestamp(new Date());
+	}
+	
+	/**
+	 * @brief Could not find a given user.
+	 */
+	public static UserNotFound(): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle('Could not find user!')
+					.setTimestamp(new Date());
+	}
+	
+	/**
+	 * @brief Notification for an archived report.
+	 * 
+	 * @param report The report data.
+	 */
+	public static ReportArchive(report: Report): Discord.RichEmbed
+	{
+		return new Discord.RichEmbed()
+					.setTitle(`Report from user ${report.sender.user.username}#${report.sender.user.discriminator}`)
+					.setDescription(`User reported: ${report.member.user.username}#${report.member.user.discriminator}`)
+					.addField('Note', report.message)
 					.setTimestamp(new Date());
 	}
 	

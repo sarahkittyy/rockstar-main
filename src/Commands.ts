@@ -3,12 +3,14 @@ import Messages from './Messages';
 import RoleReact from './RoleReact';
 import * as Emoji from 'node-emoji';
 import Settings from './Settings';
+import ReportHandler from './ReportHandler';
 
 export interface Command
 {
 	name: string;
 	permission: number;
 	users?: string[];
+	roles?: string[];
 	desc?: string;
 	args?: CommandArg[];
 	callback: (client: Discord.Client, args: CallbackArgs) => void;
@@ -66,35 +68,49 @@ export default <Command[]>[
 			}
 			// Get the arguments.
 			let userhandle: string = args.argv[0];
-			let message: string = args.argv.slice(2).join(' ') || 'No message given';
+			let message: string = args.argv.slice(1).join(' ') || 'No message given';
 			
 			// Get the user mentioned.
 			let userID: string = /<@(\d+)>/.exec(userhandle)[1];
 			// Get the user.
 			let user: Discord.GuildMember = args.msg.guild.members.get(userID);
 			
-			// Get the staff role.
-			let staff: Discord.Role | undefined =
-				user.guild.roles.find((r: Discord.Role) => r.name === args.settings.reportrole);
-			if(!staff)
+			ReportHandler.reportUser(client, user, args.msg, message);
+		}
+	},
+	{
+		name: 'handle',
+		desc: 'Handle a user\'s report',
+		permission: -1,
+		roles: [
+			"staff"
+		],
+		args: [
 			{
-				args.msg.channel.send(Messages.InvalidStaffRole());
-				return;
+				name: 'user',
+				required: true,
+				desc: 'The user who submitted the report',
+				type: 'string (@their_username)'
 			}
-			if(!staff.mentionable)
+		],
+		callback: (client: Discord.Client, args: CallbackArgs) => {
+			if(args.argc != 1)
 			{
-				args.msg.channel.send(Messages.StaffNotMentionable());
+				args.msg.channel.send(Messages.InvalidCommandArgs('handle'));
 				return;
 			}
 			
-			// Delete the report message.
-			if(args.msg.deletable)
+			// Get the guild member.
+			let userID: string = /<@(\d+)>/.exec(args.argv[0])[1];
+			let user: Discord.GuildMember | undefined =
+				args.msg.guild.members.get(userID);
+			if(!user)
 			{
-				args.msg.delete().catch(console.error);
+				args.msg.channel.send(Messages.UserNotFound());
 			}
 			
-			// Respond that the report was successful.
-			args.msg.channel.send(`<@&${staff.id}>`, Messages.SuccessfulReport());
+			// Handle the reports.
+			ReportHandler.handleReport(user, args.msg);
 		}
 	},
 	{

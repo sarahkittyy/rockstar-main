@@ -5,6 +5,7 @@ import Messages from './Messages';
 import SCPWatch from './SCPWatch';
 import SCPLog from './SCPLog';
 import RoleReact from './RoleReact';
+import ReportHandler from './ReportHandler';
 
 /**
  * Main discord bot class
@@ -33,6 +34,7 @@ export default class Bot
 	public constructor(token: string, settings: Settings)
 	{
 		RoleReact.init();
+		ReportHandler.init(settings);
 		this.token = token;
 		this.settings = settings;
 		Messages.InitSettings(this.settings);

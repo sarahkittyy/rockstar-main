@@ -94,7 +94,14 @@ export default class CommandHandle
 			// Check that we have the permissions to run this command.
 			this.hasPermissions(args.msg, found.permission).catch(console.error)
 			.then((value: boolean) => {
-				if(value || (found.users.find((v: string) => v === args.msg.author.id)))
+				if(value || 
+					(found.users && found.users.find((v: string) => v === args.msg.author.id)) ||
+					(found.roles && found.roles.find(
+						(roleName: string) => {
+							return args.msg.guild.members.get(args.msg.author.id).roles.find((role: Discord.Role) => role.name === roleName) != undefined;
+						}
+					))
+				)
 				{
 					found.callback(client, args);
 				}
