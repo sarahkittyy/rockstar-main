@@ -1,15 +1,46 @@
 {
 	"cmdprefix": "/",
 	"cmdnotifybad": true,
-	"serverpath": "C:/Users/new owner/AppData/Roaming/SCP Secret Laboratory/ServerLogs/",
-	"ports": [
-		7777
+	"serverpath": "C:/Users/Administrator/AppData/Roaming/SCP Secret Laboratory/ServerLogs/",
+	"logs": [
+		{
+			"port": 7780,
+			"channel": "gory-gaming-mega-logs"
+		},
+		{
+			"port": 7782,
+			"channel": "gory-gaming-pro-logs"
+		},
+		{
+			"port": 7781,
+			"channel": "gory-gaming-teacher-logs"
+		},
+		{
+			"port": 7778,
+			"channel": "gory-gaming-fun-logs"
+		},
+		{
+			"port": 7779,
+			"channel": "gory-gaming-2-logs"
+		},
+		{
+			"port": 7777,
+			"channel": "gory-gaming-1-logs"
+		}
 	],
 	"guildid": "594630477240074265",
-	"logchannel": "log",
+	"adminlogchannel": "all-admin-logs",
 	"reportrole": "staff",
 	"reportwait": "5",
 	"reportchannel": "missed-reports",
-	"reporthandledchannel": "handled-reports"
-	
+	"reporthandledchannel": "handled-reports",
+	"standardevents": [
+		"Connection update",
+		"Game Event",
+		"Kill"
+	],
+	"adminevents": [
+		"Remote Admin",
+		"Remote Admin - Misc"
+	]
 }

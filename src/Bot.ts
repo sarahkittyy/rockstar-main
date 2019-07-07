@@ -1,5 +1,5 @@
 import * as Discord from 'discord.js';
-import Settings from './Settings';
+import Settings, { LogChannel } from './Settings';
 import CommandHandle from './CommandHandle';
 import Messages from './Messages';
 import SCPWatch from './SCPWatch';
@@ -21,9 +21,9 @@ export default class Bot
 	/// Command handler.
 	private cmdh: CommandHandle;
 	/// SCP watcher.
-	private scpw: SCPWatch;
-	/// SCP logger.
-	private scpl: SCPLog;
+	private scpw: SCPWatch[];
+	/// SCP loggers.
+	private scpl: SCPLog[];
 	
 	/**
 	 * @brief Init the bot
@@ -90,7 +90,7 @@ export default class Bot
 		})
 		.catch(console.error);
 		
-		// Init the SCP Logger.
+		// Init the SCP Loggers.
 		this.client.on('ready', () => {
 			let guild: Discord.Guild | undefined =
 			this.client.guilds.find((g: Discord.Guild) => g.id === this.settings.guildid);
@@ -98,17 +98,48 @@ export default class Bot
 			{
 				throw new Error('Could not find guild with ID ' + this.settings.guildid);
 			}
-			let channel: Discord.GuildChannel | undefined =
-				guild.channels.find((c: Discord.GuildChannel) => (c.name == this.settings.logchannel) && (c.type === 'text'));
-			if(!channel)
-			{
-				throw new Error('Could not find channel with name ' + this.settings.logchannel + '!');
-			}
-			this.scpl = new SCPLog(this.settings, <Discord.TextChannel>channel);
-			
-			// Init the SCP file log watcher.
-			this.scpw = new SCPWatch(this.settings, this.settings.ports[0]);
-			this.scpw.onChange((type: string, filename: string) => { this.scpl.onLogFileChange(filename); });
+			// Create the loggers.
+			this.createLoggers(guild);
 		});
+	}
+	
+	/**
+	 * @brief Initializes the loggers with the given config settings.
+	 * 
+	 * @param guild The bot's main guild.
+	 */
+	private createLoggers(guild: Discord.Guild)
+	{
+		this.scpw = new Array<SCPWatch>();
+		this.scpl = new Array<SCPLog>();
+		
+		// Get the admin channel.
+		let adminguildchannel: Discord.GuildChannel | undefined =
+			guild.channels.find((c: Discord.GuildChannel) => c.name === this.settings.adminlogchannel);
+		if(!adminguildchannel || adminguildchannel.type !== 'text')
+		{
+			throw new Error('Invalid admin log channel name! Fatal error, exiting.');
+		}
+		let adminchannel = <Discord.TextChannel>adminguildchannel;
+		// Iterate over all log objcts.
+		for(let log of this.settings.logs)
+		{
+			// Create the file watcher.
+			let w = this.scpw[this.scpw.push(new SCPWatch(this.settings, log.port)) - 1];
+			// Get the log channel.
+			let guildchannel: Discord.GuildChannel | undefined =
+				guild.channels.find(c => c.name === log.channel);
+			if(!guildchannel || guildchannel.type !== 'text')
+			{
+				throw new Error('Invalid log channel for server port ' + log.port.toString());
+			}
+			let channel = <Discord.TextChannel>guildchannel;
+			// Create the logger.
+			let l = this.scpl[this.scpl.push(new SCPLog(this.settings, channel, adminchannel)) - 1];
+			// Link the two.
+			this.scpw[this.scpw.length - 1].onChange((type, filename) => {
+				l.onLogFileChange(filename);
+			});
+		}
 	}
 };
